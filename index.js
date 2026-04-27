@@ -18,9 +18,42 @@ let students = [
 
 app.get("/students", (req, res) => {
   res.json({
-    count: students.size(),
+    count: students.length,
     results: students,
   });
+});
+
+app.get("/students/:id", (req, res) => {
+  const student = students.find((st) => req.params.id == st.id);
+  if (!student) return res.status(404).json({ results: "student not found" });
+  res.json({
+    count: 1,
+    results: student,
+  });
+});
+
+app.post("/students", (req, res) => {
+  const found = students.find((st) => req.body.id == st.id);
+  if (!found) {
+    students.push(req.body);
+    return res.status(201).json({ results: req.body });
+  }
+  res.status(400).json({ results: "couldn't add student" });
+});
+
+app.patch("/students/:id", (req, res) => {
+  const student = students.find((st) => req.params.id == st.id);
+  if (student) {
+    Object.keys(req.body).forEach((key) => {
+      student[key] = req.body[key];
+    });
+    res.status(200).json({ results: student });
+  }
+});
+
+app.delete("/students/:id", (req, res) => {
+  students = students.filter((st) => req.params.id != st.id);
+  res.sendStatus(200);
 });
 
 app.listen(8000, () => {
